@@ -27,10 +27,15 @@ void cancelarTurno(struct Turno** lista);
 void modificarTurno(struct Turno* lista);
 void ordenarLista(struct Turno** lista);
 void buscarPorDNI(struct Turno* lista);
+void guardarEnArchivo(struct Turno* lista);
+void cargarDesdeArchivo(struct Turno** lista);
 
 int main() {
     struct Turno* lista = NULL;
+     cargarDesdeArchivo(&lista);
+    ordenarLista(&lista);
     menu(&lista);
+    guardarEnArchivo(lista);
     return 0;
 }
 void menu(struct Turno** lista) {
@@ -373,4 +378,35 @@ void buscarPorDNI(struct Turno* lista) {
         printf("No se encontraron turnos con ese DNI.\n");
 
     printf("Presione ENTER para continuar..."); getchar(); getchar();
+}
+
+void guardarEnArchivo(struct Turno* lista) {
+    FILE* f = fopen(ARCHIVO, "w");
+    if (!f) {
+        printf("Error al guardar archivo.\n");
+        return;
+    }
+    while (lista) {
+        fprintf(f, "%s %s %d %s %d %d %s\n", lista->apellido, lista->nombre, lista->dni,
+                lista->telefono, lista->dia, lista->hora, lista->servicio);
+        lista = lista->siguiente;
+    }
+    fclose(f);
+}
+
+void cargarDesdeArchivo(struct Turno** lista) {
+    FILE* f = fopen(ARCHIVO, "r");
+    if (!f) return;
+    while (!feof(f)) {
+        struct Turno* nuevo = malloc(sizeof(struct Turno));
+        if (fscanf(f, "%15s %15s %d %10s %d %d %10s", nuevo->apellido, &nuevo->nombre,
+                   &nuevo->dni, nuevo->telefono, &nuevo->dia, &nuevo->hora, nuevo->servicio) == 7) {
+            nuevo->siguiente = *lista;
+            *lista = nuevo;
+        } else {
+            free(nuevo);
+            break;
+        }
+    }
+    fclose(f);
 }

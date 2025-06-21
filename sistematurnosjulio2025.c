@@ -25,6 +25,8 @@ int esFinDeSemana(int dia);
 int turnoOcupado(struct Turno* lista, int dia, int hora);
 void cancelarTurno(struct Turno** lista);
 void modificarTurno(struct Turno* lista);
+void ordenarLista(struct Turno** lista);
+
 int main() {
     struct Turno* lista = NULL;
     menu(&lista);
@@ -44,12 +46,12 @@ void menu(struct Turno** lista) {
         printf("Seleccione opcion: ");
         scanf("%d", &opcion);
         switch (opcion) {
-            case 1: reservarTurno(lista); break;
+            case 1: reservarTurno(lista);ordenarLista(lista); break;
             case 2: listarTurnos(*lista); break;
             case 3: listarPorDia(*lista); break;
             case 4: break;
             case 5: cancelarTurno(lista); break;
-            case 6: modificarTurno(*lista); break;
+            case 6: modificarTurno(*lista);ordenarLista(lista); break;
             case 0: break;
             default: printf("Opcion invalida.\n");
         }
@@ -333,4 +335,21 @@ void modificarTurno(struct Turno* lista) {
 
     printf("No se encontró ese turno con ese día y hora.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
+}
+
+void ordenarLista(struct Turno** lista) {
+    if (!*lista || !(*lista)->siguiente) return;
+    struct Turno *i, *j;
+    for (i = *lista; i != NULL; i = i->siguiente) {
+        for (j = i->siguiente; j != NULL; j = j->siguiente) {
+            if (i->dia > j->dia || (i->dia == j->dia && i->hora > j->hora)) {
+                struct Turno temp = *i;
+                *i = *j;
+                *j = temp;
+                struct Turno* aux = i->siguiente;
+                i->siguiente = j->siguiente;
+                j->siguiente = aux;
+            }
+        }
+    }
 }

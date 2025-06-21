@@ -26,6 +26,7 @@ int turnoOcupado(struct Turno* lista, int dia, int hora);
 void cancelarTurno(struct Turno** lista);
 void modificarTurno(struct Turno* lista);
 void ordenarLista(struct Turno** lista);
+void buscarPorDNI(struct Turno* lista);
 
 int main() {
     struct Turno* lista = NULL;
@@ -49,7 +50,7 @@ void menu(struct Turno** lista) {
             case 1: reservarTurno(lista);ordenarLista(lista); break;
             case 2: listarTurnos(*lista); break;
             case 3: listarPorDia(*lista); break;
-            case 4: break;
+            case 4: buscarPorDNI(*lista); break;
             case 5: cancelarTurno(lista); break;
             case 6: modificarTurno(*lista);ordenarLista(lista); break;
             case 0: break;
@@ -352,4 +353,24 @@ void ordenarLista(struct Turno** lista) {
             }
         }
     }
+}
+void buscarPorDNI(struct Turno* lista) {
+    int dni, encontrados = 0;
+    printf("Ingrese DNI a buscar: ");
+    scanf("%d", &dni);
+
+    while (lista) {
+        if (lista->dni == dni) {
+            printf("Día %2d - %2d:00hs | %s %s | Tel: %s | Servicio: %s\n",
+                   lista->dia, lista->hora, lista->apellido, lista->nombre,
+                   lista->telefono, lista->servicio);
+            encontrados = 1;
+        }
+        lista = lista->siguiente;
+    }
+
+    if (!encontrados)
+        printf("No se encontraron turnos con ese DNI.\n");
+
+    printf("Presione ENTER para continuar..."); getchar(); getchar();
 }

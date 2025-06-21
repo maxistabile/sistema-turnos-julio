@@ -19,6 +19,8 @@ struct Turno {
 // Funciones
 void menu(struct Turno** lista);
 void reservarTurno(struct Turno** lista);
+void listarTurnos(struct Turno* lista);
+void listarPorDia(struct Turno* lista);
 int esFinDeSemana(int dia);
 int turnoOcupado(struct Turno* lista, int dia, int hora);
 int main() {
@@ -41,8 +43,8 @@ void menu(struct Turno** lista) {
         scanf("%d", &opcion);
         switch (opcion) {
             case 1: reservarTurno(lista); break;
-            case 2: break;
-            case 3: break;
+            case 2: listarTurnos(*lista); break;
+            case 3: listarPorDia(*lista); break;
             case 4: break;
             case 5: break;
             case 6: break;
@@ -155,5 +157,47 @@ do {
     *lista = nuevo;
 
     printf("\nTurno reservado con éxito.\n");
+    printf("Presione ENTER para continuar..."); getchar(); getchar();
+}
+
+void listarTurnos(struct Turno* lista) {
+    if (!lista) {
+        printf("No hay turnos reservados.\n");
+    } else {
+        printf("\nTurnos del mes:\n");
+        while (lista) {
+            printf("Día %2d - %2d:00hs | %s %s | DNI: %d | Tel: %s | Servicio: %s\n",
+                   lista->dia, lista->hora, lista->apellido, lista->nombre,
+                   lista->dni, lista->telefono, lista->servicio);
+            lista = lista->siguiente;
+        }
+    }
+    printf("Presione ENTER para continuar..."); getchar(); getchar();
+}
+
+void listarPorDia(struct Turno* lista) {
+    int dia;
+    do {
+        printf("Ingrese el día (1-31): ");
+        scanf("%d", &dia);
+        if (dia < 1 || dia > 31 || esFinDeSemana(dia))
+            printf("ERROR: Día inválido o fin de semana.\n");
+        else break;
+    } while (1);
+
+    int hay = 0;
+    while (lista) {
+        if (lista->dia == dia) {
+            if (!hay) {
+                printf("Turnos para el día %d:\n", dia);
+                hay = 1;
+            }
+            printf("%2d:00hs | %s %s | DNI: %d | Tel: %s | Servicio: %s\n",
+                   lista->hora, lista->apellido, lista->nombre,
+                   lista->dni, lista->telefono, lista->servicio);
+        }
+        lista = lista->siguiente;
+    }
+    if (!hay) printf("No hay turnos para ese día.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }

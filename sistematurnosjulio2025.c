@@ -23,6 +23,8 @@ void listarTurnos(struct Turno* lista);
 void listarPorDia(struct Turno* lista);
 int esFinDeSemana(int dia);
 int turnoOcupado(struct Turno* lista, int dia, int hora);
+void cancelarTurno(struct Turno** lista);
+void modificarTurno(struct Turno* lista);
 int main() {
     struct Turno* lista = NULL;
     menu(&lista);
@@ -46,8 +48,8 @@ void menu(struct Turno** lista) {
             case 2: listarTurnos(*lista); break;
             case 3: listarPorDia(*lista); break;
             case 4: break;
-            case 5: break;
-            case 6: break;
+            case 5: cancelarTurno(lista); break;
+            case 6: modificarTurno(*lista); break;
             case 0: break;
             default: printf("Opcion invalida.\n");
         }
@@ -199,5 +201,136 @@ void listarPorDia(struct Turno* lista) {
         lista = lista->siguiente;
     }
     if (!hay) printf("No hay turnos para ese día.\n");
+    printf("Presione ENTER para continuar..."); getchar(); getchar();
+}
+
+void cancelarTurno(struct Turno** lista) {
+    if (!*lista) {
+        printf("No hay turnos cargados.\n");
+        printf("Presione ENTER para continuar..."); getchar(); getchar();
+        return;
+    }
+
+    int dni, hora, dia;
+    printf("Ingrese DNI: ");
+    scanf("%d", &dni);
+    printf("Ingrese día (1-31): ");
+    scanf("%d", &dia);
+    printf("Ingrese hora (8 a 15): ");
+    scanf("%d", &hora);
+
+    struct Turno *actual = *lista, *anterior = NULL;
+
+    while (actual) {
+        if (actual->dni == dni && actual->dia == dia && actual->hora == hora) {
+            if (anterior) anterior->siguiente = actual->siguiente;
+            else *lista = actual->siguiente;
+            free(actual);
+            printf("Turno cancelado exitosamente.\n");
+            printf("Presione ENTER para continuar..."); getchar(); getchar();
+            return;
+        }
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+
+    printf("No se encontró el turno para cancelar.\n");
+    printf("Presione ENTER para continuar..."); getchar(); getchar();
+}
+void modificarTurno(struct Turno* lista) {
+    if (!lista) {
+        printf("No hay turnos cargados.\n");
+        printf("Presione ENTER para continuar..."); getchar(); getchar();
+        return;
+    }
+
+    int dni, dia, hora;
+    printf("Ingrese el DNI del turno a modificar: ");
+    scanf("%d", &dni);
+
+    // Mostrar todos los turnos que coincidan con ese DNI
+    struct Turno* actual = lista;
+    int encontrados = 0;
+    while (actual) {
+        if (actual->dni == dni) {
+            printf("Día %2d - %2d:00hs | %s %s | Tel: %s | Servicio: %s\n",
+                   actual->dia, actual->hora, actual->apellido, actual->nombre,
+                   actual->telefono, actual->servicio);
+            encontrados++;
+        }
+        actual = actual->siguiente;
+    }
+
+    if (!encontrados) {
+        printf("No se encontró un turno con ese DNI.\n");
+        printf("Presione ENTER para continuar..."); getchar(); getchar();
+        return;
+    }
+
+    // Pedir día y hora del turno específico a modificar
+    printf("Ingrese el día del turno a modificar: ");
+    scanf("%d", &dia);
+    printf("Ingrese la hora del turno a modificar (entre 8 y 15): ");
+    scanf("%d", &hora);
+
+    actual = lista;
+    while (actual) {
+        if (actual->dni == dni && actual->dia == dia && actual->hora == hora) {
+            printf("\n--- Modificar Turno ---\n");
+
+            printf("Nuevo apellido (máx 15): ");
+            scanf("%15s", actual->apellido);
+
+            printf("Nuevo nombre: ");
+            scanf("%15s", actual->nombre);
+
+            do {
+                printf("Nuevo teléfono (10 dígitos): ");
+                scanf("%s", actual->telefono);
+                int valido = 1;
+                if (strlen(actual->telefono) != 10) valido = 0;
+                else {
+                    for (int i = 0; i < 10; i++) {
+                        if (!isdigit(actual->telefono[i])) {valido = 0; break;}
+                    }
+                }
+                if (!valido) printf("ERROR: El teléfono debe tener 10 dígitos numéricos.\n");
+                else break;
+            } while (1);
+
+            int nuevoDia, nuevaHora;
+            do {
+                printf("Nuevo día (1-31): ");
+                scanf("%d", &nuevoDia);
+                if (nuevoDia < 1 || nuevoDia > 31 || esFinDeSemana(nuevoDia))
+                    printf("ERROR: Día inválido o fin de semana.\n");
+                else break;
+            } while (1);
+
+            do {
+                printf("Nueva hora (entre 8 y 15): ");
+                scanf("%d", &nuevaHora);
+                if (nuevaHora < 8 || nuevaHora > 15)
+                    printf("ERROR: Horario inválido.\n");
+                else if (turnoOcupado(lista, nuevoDia, nuevaHora) &&
+                         !(nuevoDia == actual->dia && nuevaHora == actual->hora))
+                    printf("ERROR: Turno ya ocupado.\n");
+                else break;
+            } while (1);
+
+            actual->dia = nuevoDia;
+            actual->hora = nuevaHora;
+
+            printf("Nuevo servicio (máx 10): ");
+            scanf("%10s", actual->servicio);
+
+            printf("\nTurno modificado con éxito.\n");
+            printf("Presione ENTER para continuar..."); getchar(); getchar();
+            return;
+        }
+        actual = actual->siguiente;
+    }
+
+    printf("No se encontró ese turno con ese día y hora.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }

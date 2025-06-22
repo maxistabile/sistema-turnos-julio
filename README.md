@@ -1,5 +1,11 @@
 # 📅 Sistema de Gestión de Turnos - Julio 2025
 
+## 👨‍💻 Integrantes
+
+- **Barrios Cristian Martin**
+- **Stabile Maximiliano**
+- **Sánchez Oliva Iván Nicolás**
+
 ## 📋 Descripción
 
 Sistema de gestión de turnos desarrollado en C que permite administrar citas médicas, servicios profesionales o cualquier tipo de reserva por horarios durante el mes de julio de 2025. El sistema utiliza una lista enlazada para almacenar los datos en memoria y persiste la información en un archivo de texto.

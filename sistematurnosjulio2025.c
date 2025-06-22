@@ -5,7 +5,7 @@
 #define MAX_SERVICIO 11
 #define MAX_APELLIDO 16
 #define ARCHIVO "turnos_julio2025.txt"
-
+// Estructura de un turno con todos los datos necesarios
 struct Turno {
     char apellido[MAX_APELLIDO];
     char nombre[16];
@@ -16,7 +16,7 @@ struct Turno {
     char servicio[MAX_SERVICIO];
     struct Turno* siguiente;
 };
-// Funciones
+// Declaracion de Funciones
 void menu(struct Turno** lista);
 void reservarTurno(struct Turno** lista);
 void listarTurnos(struct Turno* lista);
@@ -29,7 +29,7 @@ void ordenarLista(struct Turno** lista);
 void buscarPorDNI(struct Turno* lista);
 void guardarEnArchivo(struct Turno* lista);
 void cargarDesdeArchivo(struct Turno** lista);
-
+// Funcion principal
 int main() {
     struct Turno* lista = NULL;
      cargarDesdeArchivo(&lista);
@@ -38,6 +38,8 @@ int main() {
     guardarEnArchivo(lista);
     return 0;
 }
+// Implementacion de Funciones
+// Muestra el menú principal y gestiona las opciones del usuario
 void menu(struct Turno** lista) {
     int opcion;
     do {
@@ -52,20 +54,22 @@ void menu(struct Turno** lista) {
         printf("Seleccione opcion: ");
         scanf("%d", &opcion);
         switch (opcion) {
-            case 1: reservarTurno(lista);ordenarLista(lista); break;
+            case 1: reservarTurno(lista);ordenarLista(lista);guardarEnArchivo(*lista); break; // Guarda automáticamente después de realizar una acción importante
             case 2: listarTurnos(*lista); break;
             case 3: listarPorDia(*lista); break;
             case 4: buscarPorDNI(*lista); break;
-            case 5: cancelarTurno(lista); break;
-            case 6: modificarTurno(*lista);ordenarLista(lista); break;
+            case 5: cancelarTurno(lista);guardarEnArchivo(*lista); break; // Guarda automáticamente después de realizar una acción importante
+            case 6: modificarTurno(*lista);ordenarLista(lista);guardarEnArchivo(*lista); break; // Guarda automáticamente después de realizar una acción importante
             case 0: break;
             default: printf("Opcion invalida.\n");
         }
     } while (opcion != 0);
 }
+// Verifica si un día ingresado es fin de semana (no se atiende)
 int esFinDeSemana(int dia) {
     return dia == 5 || dia == 6 || dia == 12 || dia == 13 || dia == 19 || dia == 20 || dia == 26 || dia == 27;
 }
+// Verifica si un horario ya está ocupado para un día específico
 int turnoOcupado(struct Turno* lista, int dia, int hora) {
     while (lista) {
         if (lista->dia == dia && lista->hora == hora) return 1;
@@ -73,6 +77,7 @@ int turnoOcupado(struct Turno* lista, int dia, int hora) {
     }
     return 0;
 }
+// Reserva un nuevo turno validando los datos ingresados
 void reservarTurno(struct Turno** lista) {
     struct Turno* nuevo = malloc(sizeof(struct Turno));
     if (!nuevo) return;
@@ -82,7 +87,7 @@ void reservarTurno(struct Turno** lista) {
 
     printf("Nombre (máx 15): ");
     scanf("%15s", nuevo->nombre);
-
+// Validación de DNI: debe tener 7 u 8 dígitos
     do {
         printf("DNI (7 u 8 dígitos): ");
         scanf("%d", &nuevo->dni);
@@ -91,7 +96,7 @@ void reservarTurno(struct Turno** lista) {
         if (cant != 7 && cant != 8) printf("ERROR: DNI inválido.\n");
         else break;
     } while (1);
-
+// Validación de teléfono: exactamente 10 dígitos numéricos
     do {
         printf("Teléfono (10 dígitos): ");
         scanf("%s", nuevo->telefono);
@@ -105,7 +110,7 @@ void reservarTurno(struct Turno** lista) {
         if (!valido) printf("ERROR: El teléfono debe tener 10 dígitos numéricos.\n");
         else break;
     } while (1);
-
+// Validación de día: debe estar entre 1 y 31 y no ser fin de semana
     do {
         printf("Día (1-31): ");
         scanf("%d", &nuevo->dia);
@@ -125,6 +130,7 @@ do {
             ocupado++;
         }
     }
+    // Verifica si hay turnos disponibles antes de seguir
     if (ocupado == 8) {
         printf("\nNo hay horarios disponibles para este día.\n");
         printf("¿Desea elegir otro día? (S/N): ");
@@ -146,7 +152,7 @@ do {
             return;
         }
     }
-
+// Validación de hora: entre 8 y 15, y que no esté ocupada
     printf("\nIngrese la hora del turno (entre 8 y 15): ");
     scanf("%d", &nuevo->hora);
     if (nuevo->hora < 8 || nuevo->hora > 15)
@@ -169,7 +175,7 @@ do {
     printf("\nTurno reservado con éxito.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }
-
+// Lista todos los turnos cargados en el sistema
 void listarTurnos(struct Turno* lista) {
     if (!lista) {
         printf("No hay turnos reservados.\n");
@@ -184,7 +190,7 @@ void listarTurnos(struct Turno* lista) {
     }
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }
-
+// Lista los turnos de un día específico
 void listarPorDia(struct Turno* lista) {
     int dia;
     do {
@@ -211,7 +217,7 @@ void listarPorDia(struct Turno* lista) {
     if (!hay) printf("No hay turnos para ese día.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }
-
+// Cancela un turno según DNI, día y hora
 void cancelarTurno(struct Turno** lista) {
     if (!*lista) {
         printf("No hay turnos cargados.\n");
@@ -245,6 +251,7 @@ void cancelarTurno(struct Turno** lista) {
     printf("No se encontró el turno para cancelar.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }
+// Modifica los datos de un turno ya existente
 void modificarTurno(struct Turno* lista) {
     if (!lista) {
         printf("No hay turnos cargados.\n");
@@ -342,7 +349,7 @@ void modificarTurno(struct Turno* lista) {
     printf("No se encontró ese turno con ese día y hora.\n");
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }
-
+// Ordena la lista enlazada por día y hora de menor a mayor
 void ordenarLista(struct Turno** lista) {
     if (!*lista || !(*lista)->siguiente) return;
     struct Turno *i, *j;
@@ -359,6 +366,7 @@ void ordenarLista(struct Turno** lista) {
         }
     }
 }
+// Busca turnos por número de DNI
 void buscarPorDNI(struct Turno* lista) {
     int dni, encontrados = 0;
     printf("Ingrese DNI a buscar: ");
@@ -379,7 +387,7 @@ void buscarPorDNI(struct Turno* lista) {
 
     printf("Presione ENTER para continuar..."); getchar(); getchar();
 }
-
+// Guarda todos los turnos en el archivo de texto
 void guardarEnArchivo(struct Turno* lista) {
     FILE* f = fopen(ARCHIVO, "w");
     if (!f) {
@@ -393,7 +401,7 @@ void guardarEnArchivo(struct Turno* lista) {
     }
     fclose(f);
 }
-
+// Carga los turnos desde el archivo al iniciar el programa
 void cargarDesdeArchivo(struct Turno** lista) {
     FILE* f = fopen(ARCHIVO, "r");
     if (!f) return;

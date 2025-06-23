@@ -45,8 +45,8 @@ void menu(struct Turno** lista) {
     do {
         printf("\n----- SISTEMA DE TURNOS JULIO 2025 -----\n");
         printf("1. Reservar turno\n");
-        printf("2. Listar turnos del mes\n");
-        printf("3. Listar turnos por dia\n");
+        printf("2. Listar turnos ocupados del mes\n");
+        printf("3. Listar turnos ocupados/libres por dia\n");
         printf("4. Buscar turno por DNI\n");
         printf("5. Cancelar turno\n");
         printf("6. Modificar turno\n");
@@ -247,21 +247,37 @@ void listarPorDia(struct Turno* lista) {
     } while (1);
 
     int hay = 0;
-    while (lista) {
-        if (lista->dia == dia) {
-            if (!hay) {
-                printf("Turnos para el día %d:\n", dia);
-                hay = 1;
-            }
+    printf("Turnos para el día %d:\n", dia);
+
+    // Mostrar turnos ocupados
+    struct Turno* aux = lista;
+    while (aux) {
+        if (aux->dia == dia) {
             printf("%2d:00hs | %s %s | DNI: %d | Tel: %s | Servicio: %s\n",
-                   lista->hora, lista->apellido, lista->nombre,
-                   lista->dni, lista->telefono, lista->servicio);
+                   aux->hora, aux->apellido, aux->nombre,
+                   aux->dni, aux->telefono, aux->servicio);
+            hay = 1;
         }
-        lista = lista->siguiente;
+        aux = aux->siguiente;
     }
     if (!hay) printf("No hay turnos para ese día.\n");
-    printf("Presione ENTER para continuar..."); getchar(); getchar();
+
+    // Mostrar horarios disponibles
+    printf("\nHorarios disponibles para el día %d:\n", dia);
+    int disponibles = 0;
+    for (int h = 8; h <= 15; h++) {
+        if (!turnoOcupado(lista, dia, h)) {
+            printf("%2d:00hs\n", h);
+            disponibles++;
+        }
+    }
+    if (disponibles == 0)
+        printf("No hay horarios disponibles para este día.\n");
+
+    printf("Presione ENTER para continuar...");
+    getchar(); getchar();
 }
+
 // Cancela un turno según DNI, día y hora
 void cancelarTurno(struct Turno** lista) {
     if (!*lista) {

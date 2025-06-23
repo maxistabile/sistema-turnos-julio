@@ -5,19 +5,18 @@
 - **Barrios Cristian Martin**
 - **Stabile Maximiliano**
 - **Sánchez Oliva Iván Nicolás**
-  
-##  🛗  Roles del equipo
-  
+
+## 🤜🤛 Roles del equipo
+
 Todos los integrantes participaron de forma colaborativa y compartida en las siguientes tareas:
 
--Análisis y diseño del sistema.
+- **Análisis y diseño del sistema.**
 
--Implementación del código y validaciones.
+- **Implementación del código y validaciones.**
 
--Pruebas y corrección de errores.
+- **Pruebas y corrección de errores.**
 
--Documentación y armado de archivos de prueba.
-
+- **Documentación y armado de archivos de prueba.**
 
 El trabajo fue realizado en equipo, dividiendo las tareas por secciones según necesidad, y validando en conjunto cada parte del desarrollo.
 

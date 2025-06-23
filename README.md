@@ -9,6 +9,7 @@
 ##  🛗  Roles del equipo
   
 Todos los integrantes participaron de forma colaborativa y compartida en las siguientes tareas:
+
 -Análisis y diseño del sistema.
 
 -Implementación del código y validaciones.

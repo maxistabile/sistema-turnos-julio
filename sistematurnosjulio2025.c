@@ -88,14 +88,27 @@ void reservarTurno(struct Turno** lista) {
     printf("Nombre (máx 15): ");
     scanf("%15s", nuevo->nombre);
 // Validación de DNI: debe tener 7 u 8 dígitos
-    do {
-        printf("DNI (7 u 8 dígitos): ");
-        scanf("%d", &nuevo->dni);
-        int cant = 0, aux = nuevo->dni;
-        while (aux) { cant++; aux /= 10; }
-        if (cant != 7 && cant != 8) printf("ERROR: DNI inválido.\n");
-        else break;
-    } while (1);
+    char buffer[100];
+do {
+    printf("DNI (7 u 8 dígitos): ");
+    scanf("%s", buffer);
+
+    int valido = 1;
+    for (int i = 0; buffer[i] != '\0'; i++) {
+        if (!isdigit(buffer[i])) {
+            valido = 0;
+            break;
+        }
+    }
+
+    int len = strlen(buffer);
+    if (!valido || (len != 7 && len != 8)) {
+        printf("ERROR: DNI inválido.\n");
+    } else {
+        nuevo->dni = atoi(buffer);
+        break;
+    }
+} while (1);
 // Validación de teléfono: exactamente 10 dígitos numéricos
     do {
         printf("Teléfono (10 dígitos): ");
@@ -119,40 +132,72 @@ void reservarTurno(struct Turno** lista) {
         else break;
     } while (1);
 
-    int horaDisponible = 0;
+ int horaDisponible = 0;
 do {
-    // Mostrar horarios ya ocupados para ese día
-    printf("\nHorarios ocupados el día %d: ", nuevo->dia);
-    int ocupado = 0;
+    // Mostrar horarios ocupados y disponibles para ese día
+    printf("\nHorarios para el día %d:\n", nuevo->dia);
+    printf("Ocupados: ");
+    int ocupados = 0;
     for (int h = 8; h <= 15; h++) {
         if (turnoOcupado(*lista, nuevo->dia, h)) {
-            printf("%d:00\n", h);
-            ocupado++;
+            printf("%d:00 ", h);
+            ocupados++;
         }
     }
-    // Verifica si hay turnos disponibles antes de seguir
-    if (ocupado == 8) {
-        printf("\nNo hay horarios disponibles para este día.\n");
-        printf("¿Desea elegir otro día? (S/N): ");
-        char opcion;
-        scanf(" %c", &opcion);
-        if (opcion == 'S' || opcion == 's') {
-            do {
-                printf("Ingrese otro día (1-31): ");
-                scanf("%d", &nuevo->dia);
-                if (nuevo->dia < 1 || nuevo->dia > 31 || esFinDeSemana(nuevo->dia))
-                    printf("ERROR: Día inválido o fin de semana.\n");
-                else break;
-            } while (1);
-            continue; // volver a verificar horarios del nuevo día
-        } else {
-            printf("Cancelando reserva...\n");
-            free(nuevo);
-            printf("Presione ENTER para continuar..."); getchar(); getchar();
-            return;
+    if (ocupados == 0) printf("Ninguno");
+
+    printf("\nDisponibles: ");
+    int disponibles = 0;
+    for (int h = 8; h <= 15; h++) {
+        if (!turnoOcupado(*lista, nuevo->dia, h)) {
+            printf("%d:00 ", h);
+            disponibles++;
         }
     }
-// Validación de hora: entre 8 y 15, y que no esté ocupada
+    if (disponibles == 0) {
+        printf("Ninguno\n");
+        printf("No hay horarios disponibles en este día.\n");
+        do {
+            printf("Ingrese otro día (1-31): ");
+            scanf("%d", &nuevo->dia);
+            if (nuevo->dia < 1 || nuevo->dia > 31 || esFinDeSemana(nuevo->dia))
+                printf("ERROR: Día inválido o fin de semana.\n");
+            else break;
+        } while (1);
+        continue;
+    }
+
+   char opcion;
+while (1) {
+    printf("\n¿Desea continuar con este día o cambiarlo? (C=Continuar / N=Cambiar): ");
+    scanf(" %c", &opcion);
+    // Limpiar buffer de stdin para evitar que queden restos
+    while (getchar() != '\n');
+
+    if (opcion == 'C' || opcion == 'c') {
+        // Continúa con el día elegido
+        break;
+    } 
+    else if (opcion == 'N' || opcion == 'n') {
+        // Cambiar día
+        do {
+            printf("Ingrese otro día (1-31): ");
+            scanf("%d", &nuevo->dia);
+            while (getchar() != '\n'); // limpiar buffer
+
+            if (nuevo->dia < 1 || nuevo->dia > 31 || esFinDeSemana(nuevo->dia))
+                printf("ERROR: Día inválido o fin de semana.\n");
+            else break;
+        } while (1);
+        // Vuelve a empezar el ciclo para mostrar horarios del nuevo día
+        continue;
+    }
+    else {
+        printf("Caracter inválido. Por favor ingrese 'C' o 'N'.\n");
+    }
+}
+
+    // Elegir hora
     printf("\nIngrese la hora del turno (entre 8 y 15): ");
     scanf("%d", &nuevo->hora);
     if (nuevo->hora < 8 || nuevo->hora > 15)
